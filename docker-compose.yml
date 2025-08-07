@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  rag-app:
+    build: .
+    container_name: my-rag-container
+    volumes:
+      - .:/app
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    command: /bin/bash
