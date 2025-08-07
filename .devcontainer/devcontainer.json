@@ -1,18 +1,22 @@
 {
   "name": "My RAG Project Dev Container",
   "build": {
-    // 使用するDockerfileの場所を指定
     "dockerfile": "../Dockerfile"
   },
+
+  
+  "runArgs": [
+    "--env-file",
+    "${localWorkspaceFolder}/.env"
+  ],
+
   "customizations": {
     "vscode": {
-      // コンテナ内にインストールしたいVS Code拡張機能
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance"
       ]
     }
   },
-  // コンテナが作成された後に実行したいコマンド (任意)
   "postCreateCommand": "echo 'Container created successfully!'"
 }
