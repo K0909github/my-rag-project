@@ -1,0 +1,6 @@
+# RAG開発でよく使うライブラリの例
+langchain
+langchain-google-genai
+faiss-cpu
+pypdf
+python-dotenv
