@@ -14,8 +14,8 @@ def main():
     # --- 0. APIキーの確認 ---
     # .envファイルから環境変数を読み込み
     load_dotenv()
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
+    key = os.environ.get("GOOGLE_API_KEY")
+    if not key:
         print("❌ エラー: 環境変数 'GOOGLE_API_KEY' が設定されていません。")
         print("📝 .env ファイルを作成し、GOOGLE_API_KEY=your_api_key を設定してください。")
         return
@@ -46,7 +46,7 @@ def main():
     # --- 2. ベクトル化とベクトルストアの構築 ---
     print("🔄 チャンクをベクトル化し、データベースを構築しています...")
     try:
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=api_key)
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=key)
         vector_store = FAISS.from_documents(chunks, embeddings)
         print("✅ ベクトルストアの準備が完了しました。")
     except Exception as e:
@@ -58,7 +58,7 @@ def main():
     print("🔄 RAGチェーンを構築しています...")
     try:
         # LLMとしてGemini Proを準備
-        llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key=api_key, convert_system_message_to_human=True)
+        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", google_api_key=key, convert_system_message_to_human=True)
 
         # プロンプトのテンプレートを定義
         prompt_template = """
@@ -89,7 +89,7 @@ def main():
 
     # --- 4. 質問応答の実行 ---
     print("\n--- 質問応答を開始します ---")
-    question = "このドキュメントに記載されている、製品の主な機能は何ですか？"
+    question = "このドキュメントに記載されている、統合情報理論とは何ですか?"
     
     print(f"質問: {question}")
     try:
@@ -98,9 +98,24 @@ def main():
         print("\n--- 回答 ---")
         print(result["result"])
         
+
+        def clean_text(text: str) -> str:
+            # 改行や連続スペースを除去して読みやすくする
+            import re
+            # 改行をスペースに置換
+            text = text.replace("\n", " ")
+            # 複数スペースは1つに
+            text = re.sub(r"\s+", " ", text)
+            # 前後の空白を削除
+            text = text.strip()
+            return text
+
+        # 質問応答結果の出力部分の一部を修正
         print("\n--- 参考にした情報源 ---")
         for i, doc in enumerate(result["source_documents"], 1):
-            print(f"{i}. 抜粋: {doc.page_content[:100]}...")
+            cleaned = clean_text(doc.page_content)
+            print(f"{i}. 抜粋: {cleaned[:300]}...")  # 300文字まで表示
+
             
     except Exception as e:
         print(f"❌ 質問応答エラー: {e}")
